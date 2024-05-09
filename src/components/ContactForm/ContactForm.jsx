@@ -1,35 +1,39 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nanoid } from '@reduxjs/toolkit';
-import { addContact } from '../../store/contactsSlice';
+import { addContact } from '../../api/api';
 import moduleCss from './contactForm.module.css';
-import { getContacts } from 'store/selectors';
+import { filteredContactsSelector } from '../../store/selectors';
 
 const ContactForm = () => {
-  const initialContactData = { name: '', number: '' };
-  const contacts = useSelector(getContacts);
+  const [contactData, setContactData] = useState({ name: '', phone: '' });
+  const filteredContacts = useSelector(filteredContactsSelector);
   const dispatch = useDispatch();
-  const [contactData, setContactData] = useState(initialContactData);
 
-  const handleInputChange = ({ target: { name, value } }) =>
-    setContactData(prev => ({ ...prev, [name]: value.toLowerCase() }));
-
-  const clearForm = () => {
-    setContactData(initialContactData);
+  const handleInputChange = ({ target: { name, value } }) => {
+    setContactData(prev => ({ ...prev, [name]: value }));
   };
+  const clearForm = () => setContactData({ name: '', phone: '' });
 
   const isContactExist = () =>
-    contacts.some(contact => contact.name === contactData.name.toLowerCase());
+    filteredContacts.some(
+      contact =>
+        contact.name.toLowerCase() === contactData.name.toLowerCase() ||
+        contact.phone === contactData.phone
+    );
 
   const handleSubmit = e => {
     e.preventDefault();
     if (isContactExist()) {
-      alert('Contact with this name already exists!');
       clearForm();
+      alert('Contact with this name or phone number already exists!');
       return;
     }
-    const contact = { id: nanoid(), ...contactData };
-    dispatch(addContact(contact));
+    dispatch(
+      addContact({
+        name: contactData.name.toLowerCase(),
+        phone: contactData.phone,
+      })
+    );
     clearForm();
   };
 
@@ -53,8 +57,8 @@ const ContactForm = () => {
         <input
           className={moduleCss.inputName}
           type="tel"
-          name="number"
-          value={contactData.number}
+          name="phone"
+          value={contactData.phone}
           onChange={handleInputChange}
           pattern="\+?\d{1,4}?[ .\-\s]?\(?\d{1,3}?\)?[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"

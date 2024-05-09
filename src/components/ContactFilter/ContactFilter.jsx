@@ -1,18 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { setFilter } from '../../store/filterSlice';
 import moduleCss from './contactFilter.module.css';
-import { getFilter } from 'store/selectors';
+import { selectFilter } from '../../store/selectors';
 
 const ContactFilter = () => {
-  const filter = useSelector(getFilter);
+  const filter = useSelector(selectFilter);
   const dispatch = useDispatch();
-
   const handleFilterChange = e => {
     dispatch(setFilter(e.target.value));
   };
-
   return (
-    <div className={moduleCss.contactFilterForm}>
+    <div>
       <input
         type="text"
         className={moduleCss.contactFilterInput}
@@ -23,5 +21,4 @@ const ContactFilter = () => {
     </div>
   );
 };
-
 export default ContactFilter;
